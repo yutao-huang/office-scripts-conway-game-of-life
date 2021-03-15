@@ -86,15 +86,6 @@ class Board implements Grid {
         return evolution;
     }
 
-    public evolve(generations: number): Evolution {
-        let evolution: Evolution = null;
-        for (var count = 0; count < generations; count++) {
-            evolution = this.evolveOneGeneration();
-        }
-        return evolution;
-    }
-
-
     private evolveCell(y: number, x: number, evolution: Evolution): void {
         const neighbors = this.countCellNeighbors(y, x);
         const previouslyAlive = this.matrix[y][x];
@@ -114,8 +105,7 @@ class Board implements Grid {
                 if (x === 0 && y === 0) continue;
                 const posX = cellX + x;
                 const posY = cellY + y;
-                if (posY >= 0 && posY < this.height
-                    && posX >= 0 && posX < this.width) {
+                if (posY >= 0 && posY < this.height && posX >= 0 && posX < this.width) {
                     if (this.matrix[posY][posX]) {
                         count++;
                     }
@@ -241,7 +231,7 @@ class Renderer {
         }
         return result;
     }
-    
+
 }
 
 function sleep(milliseconds: number) {
