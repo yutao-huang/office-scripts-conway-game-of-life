@@ -20,7 +20,11 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
     sheet.activate();
 
     const pattern = await Pattern.fromUrl(PATTERN_URL);
-    console.log(`Pattern: ${pattern.name}, ${pattern.width} x ${pattern.height}`);
+    console.log(`Pattern: ${pattern.name}, dimension: ${pattern.width} x ${pattern.height}, rule: ${pattern.rule}`);
+    if (pattern.rule.toLowerCase() !== "b3/s23") {
+        console.log("This pattern is not supported yet. Please pick another one.");
+        return;
+    }
 
     const board = new Board(BOARD_WIDTH, BOARD_HEIGHT, pattern);
     const renderer = new Renderer(sheet);
@@ -39,9 +43,9 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
         let evolution = board.evolveOneGeneration();
         if (!evolution.hasChanged) {
             if (board.hasLife) {
-                console.log("The generation has become still life.");
+                console.log(`Generation #${generation} has become still life.`);
             } else {
-                console.log("Unfortunately the generation has become extinct.");
+                console.log(`Unfortunately Generation #${generation} has become extinct.`);
             }
             break;
         }
