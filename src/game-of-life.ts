@@ -1,6 +1,13 @@
 // The board dimension (number of columns/rows).
-const BOARD_WIDTH = 240;
-const BOARD_HEIGHT = 135;
+const BOARD_WIDTH = 120;
+const BOARD_HEIGHT = 60;
+
+// The dimension of each cell
+const DEFAULT_CELL_WIDTH = 8;
+const DEFAULT_CELL_HEIGHT = 8;
+
+// The cell color
+const DEFAULT_CELL_COLOR = "green";
 
 // How many generations you want to evolve.
 const NUMBER_OF_GENERATIONS = 120;
@@ -13,13 +20,12 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
     sheet.activate();
 
     const pattern = await Pattern.fromUrl(PATTERN_URL);
+    console.log(`Pattern: ${pattern.name}, ${pattern.width} x ${pattern.height}`);
+
     const board = new Board(BOARD_WIDTH, BOARD_HEIGHT, pattern);
     const renderer = new Renderer(sheet);
 
-    console.log("Initializing the world...")
     renderer.initializeCanvas(board.width, board.height);
-
-    console.log("Starting first generation...");
     renderer.renderEvolution(board.getInitialEvolution());
 
     console.log("Evolving...");
@@ -29,13 +35,30 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
 
     for (var generation = 1; generation < NUMBER_OF_GENERATIONS; generation++) {
         await sleep(RENDER_INTERVAL_MILLISECONDS);
+
         let evolution = board.evolveOneGeneration();
+        if (!evolution.hasChanged) {
+            if (board.hasLife) {
+                console.log("The generation has become still life.");
+            } else {
+                console.log("Unfortunately the generation has become extinct.");
+            }
+            break;
+        }
         renderer.renderEvolution(evolution);
     }
 }
 
-interface Evolution {
-    evolvedCells: [number, number, boolean][];
+class Evolution {
+    readonly evolvedCells: [number, number, boolean][] = new Array<[number, number, boolean]>();
+
+    get hasChanged(): boolean {
+        return this.evolvedCells.length > 0;
+    }
+
+    evolveCell(y: number, x: number, alive: boolean): void {
+        this.evolvedCells.push([y, x, alive]);
+    }
 }
 
 interface Grid {
@@ -51,10 +74,12 @@ class Board implements Grid {
         this.matrix = new Array(height).fill(false).map(() => new Array(width).fill(false));
     }
 
+    get hasLife(): boolean {
+        return this.matrix.some(row => row.some(isCellAlive => isCellAlive));
+    }
+
     getInitialEvolution(): Evolution {
-        let evolution = {
-            evolvedCells: new Array<[number, number, boolean]>()
-        }
+        let evolution = new Evolution();
 
         let patternX = Math.floor((this.width - this.initialPattern.width) / 2);
         let patternY = Math.floor((this.height - this.initialPattern.height) / 2);
@@ -62,7 +87,7 @@ class Board implements Grid {
             for (var x = 0; x < this.initialPattern.width; x++) {
                 this.matrix[y + patternY][x + patternX] = this.initialPattern.matrix[y][x];
                 if (this.initialPattern.matrix[y][x]) {
-                    evolution.evolvedCells.push([y + patternY, x + patternX, true]);
+                    evolution.evolveCell(y + patternY, x + patternX, true);
                 }
             }
         }
@@ -71,9 +96,7 @@ class Board implements Grid {
     }
 
     evolveOneGeneration(): Evolution {
-        let evolution = {
-            evolvedCells: new Array<[number, number, boolean]>()
-        };
+        let evolution = new Evolution();
 
         for (var y = 0; y < this.height; y++) {
             for (var x = 0; x < this.width; x++) {
@@ -90,10 +113,10 @@ class Board implements Grid {
         const neighbors = this.countCellNeighbors(y, x);
         const previouslyAlive = this.matrix[y][x];
         switch (true) {
-            case (previouslyAlive && neighbors < 2): evolution.evolvedCells.push([y, x, false]); break;
+            case (previouslyAlive && neighbors < 2): evolution.evolveCell(y, x, false); break;
             case (previouslyAlive && (neighbors === 2 || neighbors == 3)): break;
-            case (previouslyAlive && neighbors > 3): evolution.evolvedCells.push([y, x, false]); break;
-            case (!previouslyAlive && neighbors === 3): evolution.evolvedCells.push([y, x, true]); break;
+            case (previouslyAlive && neighbors > 3): evolution.evolveCell(y, x, false); break;
+            case (!previouslyAlive && neighbors === 3): evolution.evolveCell(y, x, true); break;
             default: break;
         }
     }
@@ -185,17 +208,13 @@ class Pattern implements Grid {
 }
 
 class Renderer {
-    private static DEFAULT_CELL_WIDTH = 4;
-    private static DEFAULT_CELL_HEIGHT = 4;
-    private static DEFAULT_CELL_COLOR = "green";
-
     constructor(private readonly sheet: ExcelScript.Worksheet,
-        private readonly cellWidth: number = Renderer.DEFAULT_CELL_WIDTH,
-        private readonly cellHeight: number = Renderer.DEFAULT_CELL_HEIGHT,
-        private readonly cellColor: string = Renderer.DEFAULT_CELL_COLOR) {
+        private readonly cellWidth: number = DEFAULT_CELL_WIDTH,
+        private readonly cellHeight: number = DEFAULT_CELL_HEIGHT,
+        private readonly cellColor: string = DEFAULT_CELL_COLOR) {
     }
 
-    public initializeCanvas(width: number, height: number) {
+    initializeCanvas(width: number, height: number) {
         let address = `${Renderer.columnIndexToA1Address(0)}${1}:${Renderer.columnIndexToA1Address(width - 1)}${height}`
         let canvasRange = this.sheet.getRange(address);
         let format = canvasRange.getFormat();
@@ -204,12 +223,8 @@ class Renderer {
     }
 
 
-    public renderEvolution(evolution: Evolution) {
-        this.renderEvolvedCells(evolution.evolvedCells);
-    }
-
-    private renderEvolvedCells(evolvedCells: [number, number, boolean][]) {
-        evolvedCells.forEach(evolvedCell => {
+    renderEvolution(evolution: Evolution) {
+        evolution.evolvedCells.forEach(evolvedCell => {
             const y = evolvedCell[0];
             const x = evolvedCell[1];
             const alive = evolvedCell[2];
