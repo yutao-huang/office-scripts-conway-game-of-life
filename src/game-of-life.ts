@@ -21,8 +21,8 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
 
     const pattern = await Pattern.fromUrl(PATTERN_URL);
     console.log(`Pattern: ${pattern.name}, ${pattern.width} x ${pattern.height}; Rule: ${pattern.rule.identifier}, ${pattern.rule.name}`);
-    if (typeof pattern.rule == UnsupportedRule.name) {
-        console.log(`The rule ${pattern.rule.identifier} used by this pattern is not supported yet. Please pick another one.`);
+    if (!pattern.rule || pattern.rule.name === "Unsupported") {
+        console.log(`The rule '${pattern.rule.identifier}' used by this pattern is not supported yet. Please pick another one.`);
         return;
     }
 
@@ -185,13 +185,49 @@ class HighLifeRule implements Rule {
     }
 }
 
+class TwoByTwoRule implements Rule {
+    readonly identifier = "125/36";
+    readonly name = "2x2";
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+        switch (true) {
+            case (previouslyAlive && [1, 2, 5].includes(numberOfNeighbors)): return true;
+            case (!previouslyAlive && [3, 6].includes(numberOfNeighbors)): return true;
+            default: return false;
+        }
+    }
+}
+
+class MazeRule implements Rule {
+    identifier = "12345/3";
+    name: "Maze";
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+        switch (true) {
+            case (previouslyAlive && [1, 2, 3, 4, 5].includes(numberOfNeighbors)): return true;
+            case (!previouslyAlive && numberOfNeighbors === 3): return true;
+            default: return false;
+        }
+    }
+}
+
+class LifeWithoutDeathRule implements Rule {
+    identifier = "b3/s012345678";
+    name = "Life without death";
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+        switch (true) {
+            case (previouslyAlive): return true;
+            case (!previouslyAlive && numberOfNeighbors === 3): return true;
+            default: return false;
+        }
+    }
+}
+
 class UnsupportedRule implements Rule {
     readonly name = "Unsupported";
 
     constructor(readonly identifier: string) {
     }
 
-    isCellAlive(numberOfNeighbors: number): boolean {
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
         throw new Error("Method not implemented.");
     }
 }
@@ -206,7 +242,10 @@ class Pattern implements Grid {
     private static readonly supportedRules = [
         new ConwayLifeRule,
         new HighLifeRule,
-        new MoveRule
+        new MoveRule,
+        new TwoByTwoRule,
+        new MazeRule,
+        new LifeWithoutDeathRule
     ]
 
     static async fromUrl(url: string): Promise<Pattern> {
