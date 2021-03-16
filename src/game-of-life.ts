@@ -2,7 +2,7 @@
 const BOARD_WIDTH = 120;
 const BOARD_HEIGHT = 60;
 
-// The dimension of each cell
+// The dimension of each cell.
 const DEFAULT_CELL_WIDTH = 8;
 const DEFAULT_CELL_HEIGHT = 8;
 
@@ -20,17 +20,17 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
     sheet.activate();
 
     const pattern = await Pattern.fromUrl(PATTERN_URL);
-    console.log(`Pattern: ${pattern.name}, dimension: ${pattern.width} x ${pattern.height}, rule: ${pattern.rule}`);
-    if (pattern.rule.toLowerCase() !== "b3/s23") {
-        console.log("This pattern is not supported yet. Please pick another one.");
+    console.log(`Pattern: ${pattern.name}, ${pattern.width} x ${pattern.height}; Rule: ${pattern.rule.identifier}, ${pattern.rule.name}`);
+    if (typeof pattern.rule == UnsupportedRule.name) {
+        console.log(`The rule ${pattern.rule.identifier} used by this pattern is not supported yet. Please pick another one.`);
         return;
     }
 
-    const board = new Board(BOARD_WIDTH, BOARD_HEIGHT, pattern);
+    const game = new Game(BOARD_WIDTH, BOARD_HEIGHT, pattern);
     const renderer = new Renderer(sheet);
 
-    renderer.initializeCanvas(board.width, board.height);
-    renderer.renderEvolution(board.getInitialEvolution());
+    renderer.initializeCanvas(game.width, game.height);
+    renderer.renderEvolution(game.getInitialEvolution());
 
     console.log("Evolving...");
 
@@ -40,9 +40,9 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
     for (var generation = 1; generation < NUMBER_OF_GENERATIONS; generation++) {
         await sleep(RENDER_INTERVAL_MILLISECONDS);
 
-        let evolution = board.evolveOneGeneration();
-        if (!evolution.hasChanged) {
-            if (board.hasLife) {
+        let evolution = game.evolveOneGeneration();
+        if (!evolution.hasEvolved) {
+            if (game.hasLife) {
                 console.log(`Generation #${generation} has become still life.`);
             } else {
                 console.log(`Unfortunately Generation #${generation} has become extinct.`);
@@ -53,25 +53,13 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
     }
 }
 
-class Evolution {
-    readonly evolvedCells: [number, number, boolean][] = new Array<[number, number, boolean]>();
-
-    get hasChanged(): boolean {
-        return this.evolvedCells.length > 0;
-    }
-
-    evolveCell(y: number, x: number, alive: boolean): void {
-        this.evolvedCells.push([y, x, alive]);
-    }
-}
-
 interface Grid {
     width: number;
     height: number;
     matrix: boolean[][];
 };
 
-class Board implements Grid {
+class Game implements Grid {
     readonly matrix: boolean[][];
 
     constructor(public readonly width: number, public readonly height: number, public readonly initialPattern: Pattern) {
@@ -116,12 +104,9 @@ class Board implements Grid {
     private evolveCell(y: number, x: number, evolution: Evolution): void {
         const neighbors = this.countCellNeighbors(y, x);
         const previouslyAlive = this.matrix[y][x];
-        switch (true) {
-            case (previouslyAlive && neighbors < 2): evolution.evolveCell(y, x, false); break;
-            case (previouslyAlive && (neighbors === 2 || neighbors == 3)): break;
-            case (previouslyAlive && neighbors > 3): evolution.evolveCell(y, x, false); break;
-            case (!previouslyAlive && neighbors === 3): evolution.evolveCell(y, x, true); break;
-            default: break;
+        const currentlyAlive = this.initialPattern.rule.isCellAlive(previouslyAlive, neighbors);
+        if (previouslyAlive !== currentlyAlive) {
+            evolution.evolveCell(y, x, currentlyAlive);
         }
     }
 
@@ -144,18 +129,91 @@ class Board implements Grid {
     }
 }
 
+interface Rule {
+    identifier: string;
+    name: string;
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean;
+}
+
+class RuleFactory {
+    buildRule(identifier: string): Rule {
+        switch (identifier.toUpperCase()) {
+            case "B3/S23":
+                return new ConwayLifeRule;
+            default:
+                break;
+        }
+    }
+}
+class ConwayLifeRule implements Rule {
+    readonly identifier = "B3/S23";
+    readonly name = "Conway's Game of Life";
+    
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+        switch (true) {
+            case (previouslyAlive && (numberOfNeighbors < 2 || numberOfNeighbors > 3)): return false;
+            case (previouslyAlive && (numberOfNeighbors === 2 || numberOfNeighbors === 3)): return true;
+            case (!previouslyAlive && numberOfNeighbors === 3): return true;
+            default: return false;
+        }
+    }
+}
+
+class MoveRule implements Rule {
+    readonly identifier = "245/368";
+    readonly name = "Move (or Morley)";
+    
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+        switch (true) {
+            case (previouslyAlive && [2, 4, 5].includes(numberOfNeighbors)): return true;
+            case (!previouslyAlive && [3, 6, 8].includes(numberOfNeighbors)): return true;
+            default: return false;
+        }
+    }
+}
+
+class HighLifeRule implements Rule {
+    readonly identifier = "23/36";
+    readonly name = "HighLife";
+    
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+        switch (true) {
+            case (previouslyAlive && [2, 3].includes(numberOfNeighbors)): return true;
+            case (!previouslyAlive && [3, 6].includes(numberOfNeighbors)): return true;
+            default: return false;
+        }
+    }
+}
+
+class UnsupportedRule implements Rule {
+    readonly name = "Unsupported";
+
+    constructor(readonly identifier: string) {
+    }
+
+    isCellAlive(numberOfNeighbors: number): boolean {
+        throw new Error("Method not implemented.");
+    }
+}
+
 class Pattern implements Grid {
     width: number;
     height: number;
     matrix: boolean[][];
     name: string;
-    rule: string;
+    rule: Rule;
+
+    private static readonly supportedRules = [
+        new ConwayLifeRule,
+        new HighLifeRule,
+        new MoveRule
+    ]
 
     static async fromUrl(url: string): Promise<Pattern> {
         let fetchResult = await fetch(`https://sofetch.glitch.me/${encodeURI(url)}`);
         let patternFileContent = await fetchResult.text();
         let lines = patternFileContent.split("\n");
-        let pattern: Pattern = { width: 0, height: 0, matrix: null, name: "", rule: "" };
+        let pattern: Pattern = { width: 0, height: 0, matrix: null, name: "", rule: null };
         let patternString = "";
         lines.forEach(line => {
             if (line.toUpperCase().startsWith("#N ")) {
@@ -167,7 +225,7 @@ class Pattern implements Grid {
                 const matchGroups = regex.exec(line).groups;
                 pattern.width = +matchGroups.width;
                 pattern.height = +matchGroups.height;
-                pattern.rule = matchGroups.rule;
+                pattern.rule = Pattern.getRule(matchGroups.rule);
             } else {
                 patternString += line;
             }
@@ -179,6 +237,10 @@ class Pattern implements Grid {
     }
 
     private constructor() {
+    }
+
+    private static getRule(identifier: string): Rule {
+        return Pattern.supportedRules.find(rule => rule.identifier.toUpperCase() === identifier.toUpperCase()) ?? new UnsupportedRule(identifier);
     }
 
     private static parsePattern(patternString: string, width: number, height: number): boolean[][] {
@@ -208,6 +270,18 @@ class Pattern implements Grid {
         }
 
         return matrix;
+    }
+}
+
+class Evolution {
+    readonly evolvedCells: [number, number, boolean][] = new Array<[number, number, boolean]>();
+
+    get hasEvolved(): boolean {
+        return this.evolvedCells.length > 0;
+    }
+
+    evolveCell(y: number, x: number, alive: boolean): void {
+        this.evolvedCells.push([y, x, alive]);
     }
 }
 
