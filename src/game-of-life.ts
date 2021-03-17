@@ -1,5 +1,5 @@
 // The board dimension (number of columns/rows).
-const BOARD_WIDTH = 120;
+const BOARD_WIDTH = 110;
 const BOARD_HEIGHT = 60;
 
 // The dimension of each cell.
@@ -9,35 +9,34 @@ const DEFAULT_CELL_HEIGHT = 8;
 // The cell color
 const DEFAULT_CELL_COLOR = "green";
 
-// How many generations you want to evolve.
-const NUMBER_OF_GENERATIONS = 120;
+// Maximum generations to evolve.
+const MAX_GENERATIONS = 120;
 
 // Refer to https://copy.sh/life/examples for more sample patterns.
 const PATTERN_URL = "https://copy.sh/life/examples/glider.rle";
 
 async function main(workbook: ExcelScript.Workbook): Promise<void> {
-    let sheet = workbook.addWorksheet();
-    sheet.activate();
-
     const pattern = await Pattern.fromUrl(PATTERN_URL);
-    console.log(`Pattern: ${pattern.name}, ${pattern.width} x ${pattern.height}; Rule: ${pattern.rule.identifier}, ${pattern.rule.name}`);
+    console.log(`${pattern.info}`);
     if (!pattern.rule || pattern.rule.name === "Unsupported") {
         console.log(`The rule '${pattern.rule.identifier}' used by this pattern is not supported yet. Please pick another one.`);
         return;
     }
 
-    const game = new Game(BOARD_WIDTH, BOARD_HEIGHT, pattern);
+    let sheet = workbook.addWorksheet();
+    sheet.activate();
     const renderer = new Renderer(sheet);
+    
+    const game = new Game(BOARD_WIDTH, BOARD_HEIGHT, pattern);
+    renderer.initializeCanvas(game);
+    renderer.renderEvolution(game, game.getInitialEvolution(), 0);
 
-    renderer.initializeCanvas(game.width, game.height);
-    renderer.renderEvolution(game.getInitialEvolution());
-
-    console.log("Evolving...");
+    console.log(`Evolving (maximum generations: ${MAX_GENERATIONS})...`);
 
     // Rendering might fail if the interval is too small. Normally it'd be fine if >= 500 milliseconds.
     const RENDER_INTERVAL_MILLISECONDS = 500;
 
-    for (var generation = 1; generation < NUMBER_OF_GENERATIONS; generation++) {
+    for (var generation = 1; generation < MAX_GENERATIONS; generation++) {
         await sleep(RENDER_INTERVAL_MILLISECONDS);
 
         let evolution = game.evolveOneGeneration();
@@ -49,8 +48,9 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
             }
             break;
         }
-        renderer.renderEvolution(evolution);
+        renderer.renderEvolution(game, evolution, generation);
     }
+    console.log("Done.")
 }
 
 interface Grid {
@@ -148,7 +148,7 @@ class RuleFactory {
 class ConwayLifeRule implements Rule {
     readonly identifier = "B3/S23";
     readonly name = "Conway's Game of Life";
-    
+
     isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
         switch (true) {
             case (previouslyAlive && (numberOfNeighbors < 2 || numberOfNeighbors > 3)): return false;
@@ -162,7 +162,7 @@ class ConwayLifeRule implements Rule {
 class MoveRule implements Rule {
     readonly identifier = "245/368";
     readonly name = "Move (or Morley)";
-    
+
     isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
         switch (true) {
             case (previouslyAlive && [2, 4, 5].includes(numberOfNeighbors)): return true;
@@ -175,7 +175,7 @@ class MoveRule implements Rule {
 class HighLifeRule implements Rule {
     readonly identifier = "23/36";
     readonly name = "HighLife";
-    
+
     isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
         switch (true) {
             case (previouslyAlive && [2, 3].includes(numberOfNeighbors)): return true;
@@ -221,6 +221,18 @@ class LifeWithoutDeathRule implements Rule {
     }
 }
 
+class B3578S238Rule implements Rule {
+    identifier = "238/3578";
+    name = "B3578/S238";
+    isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+        switch (true) {
+            case (previouslyAlive && [2, 3, 8].includes(numberOfNeighbors)): return true;
+            case (!previouslyAlive && [3, 5, 7, 8].includes(numberOfNeighbors)): return true;
+            default: return false;
+        }
+    }
+}
+
 class UnsupportedRule implements Rule {
     readonly name = "Unsupported";
 
@@ -245,15 +257,16 @@ class Pattern implements Grid {
         new MoveRule,
         new TwoByTwoRule,
         new MazeRule,
-        new LifeWithoutDeathRule
+        new LifeWithoutDeathRule,
+        new B3578S238Rule
     ]
 
     static async fromUrl(url: string): Promise<Pattern> {
         let fetchResult = await fetch(`https://sofetch.glitch.me/${encodeURI(url)}`);
         let patternFileContent = await fetchResult.text();
         let lines = patternFileContent.split("\n");
-        let pattern: Pattern = { width: 0, height: 0, matrix: null, name: "", rule: null };
-        let patternString = "";
+        let pattern: Pattern = new Pattern();
+        let ruleString = "";
         lines.forEach(line => {
             if (line.toUpperCase().startsWith("#N ")) {
                 pattern.name = /#N (.+)/.exec(line)[1];
@@ -266,11 +279,11 @@ class Pattern implements Grid {
                 pattern.height = +matchGroups.height;
                 pattern.rule = Pattern.getRule(matchGroups.rule);
             } else {
-                patternString += line;
+                ruleString += line;
             }
         });
 
-        pattern.matrix = Pattern.parsePattern(patternString.replace("!", ""), pattern.width, pattern.height);
+        pattern.matrix = Pattern.parsePattern(ruleString.replace("!", ""), pattern.width, pattern.height);
 
         return pattern;
     }
@@ -278,35 +291,43 @@ class Pattern implements Grid {
     private constructor() {
     }
 
+    get info(): string {
+        return `Pattern: ${this.name}, ${this.width} x ${this.height}; Rule: ${this.rule.identifier}, ${this.rule.name}`;;
+    }
+
     private static getRule(identifier: string): Rule {
         return Pattern.supportedRules.find(rule => rule.identifier.toUpperCase() === identifier.toUpperCase()) ?? new UnsupportedRule(identifier);
     }
 
-    private static parsePattern(patternString: string, width: number, height: number): boolean[][] {
+    private static parsePattern(ruleString: string, width: number, height: number): boolean[][] {
         let matrix: boolean[][] =
             new Array(height).fill(false)
                 .map(() => new Array(width).fill(false));
 
-        const rows = patternString.split("$");
-        const regex = /(\d*)([bo])/g;
-        for (var y = 0; y < height; y++) {
-            const row = rows[y];
-            let matchElement: RegExpExecArray = null;
-            let x = 0;
-            do {
-                matchElement = regex.exec(row);
-                if (!matchElement) {
-                    continue;
-                }
+        const regex = /(\d*)([bo$])/g;
+        let matchElement: RegExpExecArray | null = null;
+        let x = 0, y = 0;
+        do {
+            matchElement = regex.exec(ruleString);
+            if (!matchElement) {
+                continue;
+            }
 
-                const matchLength = matchElement[1] ? matchElement[1] : 1;
-                const alive = matchElement[2] === "o";
+            const matchLength = matchElement[1] ? matchElement[1] : 1;
+            const symbol = matchElement[2];
+            if (symbol === "$") {
                 for (let index = 0; index < matchLength; index++) {
-                    matrix[y][x++] = alive;
+                    y++;
+                    x = 0;
                 }
+                continue;
+            }
 
-            } while (matchElement)
-        }
+            const alive = matchElement[2] === "o";
+            for (let index = 0; index < matchLength; index++) {
+                matrix[y][x++] = alive;
+            }
+        } while (matchElement)
 
         return matrix;
     }
@@ -324,6 +345,8 @@ class Evolution {
     }
 }
 
+const OFFSET_Y = 1;
+
 class Renderer {
     constructor(private readonly sheet: ExcelScript.Worksheet,
         private readonly cellWidth: number = DEFAULT_CELL_WIDTH,
@@ -331,21 +354,30 @@ class Renderer {
         private readonly cellColor: string = DEFAULT_CELL_COLOR) {
     }
 
-    initializeCanvas(width: number, height: number) {
-        let address = `${Renderer.columnIndexToA1Address(0)}${1}:${Renderer.columnIndexToA1Address(width - 1)}${height}`
-        let canvasRange = this.sheet.getRange(address);
+    initializeCanvas(game: Game) {
+        let canvasRangeAddress = `${Renderer.columnIndexToA1Address(0)}${1 + OFFSET_Y}:${Renderer.columnIndexToA1Address(game.width - 1)}${game.height + OFFSET_Y}`
+        let canvasRange = this.sheet.getRange(canvasRangeAddress);
         let format = canvasRange.getFormat();
         format.setColumnWidth(this.cellWidth);
         format.setRowHeight(this.cellHeight);
     }
+    
+    renderTitle(game: Game, generation: number) {
+        let titleRangeAddress = `${Renderer.columnIndexToA1Address(0)}${1}:${Renderer.columnIndexToA1Address(game.width - 1)}${1}`
+        let titleRange = this.sheet.getRange(titleRangeAddress);
+        titleRange.merge(false);
+        titleRange.getFormat().setHorizontalAlignment(ExcelScript.HorizontalAlignment.center);
+        this.sheet.getCell(0, 0).setValue(`${game.initialPattern.info}; Generation ${generation}`);
+    }
 
+    renderEvolution(game: Game, evolution: Evolution, generation: number) {
+        this.renderTitle(game, generation);
 
-    renderEvolution(evolution: Evolution) {
         evolution.evolvedCells.forEach(evolvedCell => {
             const y = evolvedCell[0];
             const x = evolvedCell[1];
             const alive = evolvedCell[2];
-            const fillFormat = this.sheet.getCell(y, x).getFormat().getFill();
+            const fillFormat = this.sheet.getCell(y + OFFSET_Y, x).getFormat().getFill();
             if (alive) {
                 fillFormat.setColor(this.cellColor);
             } else {
