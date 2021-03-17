@@ -66,6 +66,9 @@ Here are a few interesting samples based on the rules from <https://copy.sh/life
 - B3578/S238 Replicator, 7x7:
   ![B3578/S238 Replicator, 7x7](images/sample-b3578s238-replicator.gif)
 
+- Move puffer, 2x6:
+  ![Move puffer, 2x6](images/sample-move-puffer.gif)
+
 ## Note
 
 - Rendering a game with many cells sometimes might be unstable. If you see the rendering has stopped, you may need to pick a different pattern with less cells.
