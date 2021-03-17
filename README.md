@@ -45,7 +45,7 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 
 ## Samples
 
-Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Please note the frame rates of the screen recordings here are adjusted for demonstration. The actual game speed is much slower.
+Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Please note the frame rates have been adjusted for the screen recordings here for demonstration purpose. The actual evolution rendered in Excel on the web is much slower.
 
 - Bi-clock, 7x7:
   ![Bi-clock, 7x7](images/sample-bi-clock.gif)
