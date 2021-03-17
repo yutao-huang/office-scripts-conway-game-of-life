@@ -1,4 +1,6 @@
-# ![banner](images/banner.png)
+# Conway's Game of Life in Office Scripts
+
+![banner](images/sample-reaction.gif)
 
 This is a ["Conway's Game of Life"](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) simulator written in [Office Scripts](https://aka.ms/office-scripts) that can demonstrate this classic yet interesting game on Excel worksheet.
 
@@ -44,9 +46,6 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 ## Samples
 
 Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Please note the frame rates of the screen recordings here are adjusted for demonstration. The actual game speed is much slower.
-
-- 17/c45_Reaction, 16x5:
-  ![17/c45_Reaction, 16x5](images/sample-reaction.gif)
 
 - Bi-clock, 7x7:
   ![Bi-clock, 7x7](images/sample-bi-clock.gif)
