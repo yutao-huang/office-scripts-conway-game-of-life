@@ -45,7 +45,7 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 
 ## Samples
 
-Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Please note the frame rates have been adjusted for the screen recordings here for demonstration purpose. The actual evolution rendered in Excel on the web is much slower.
+Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Note the frame rates have been adjusted for the screen recordings here for demonstration purpose. The actual evolution rendered in Excel on the web is much slower.
 
 - Bi-clock, 7x7:
   ![Bi-clock, 7x7](images/sample-bi-clock.gif)
@@ -72,3 +72,8 @@ Here are a few interesting samples based on the rules from <https://copy.sh/life
 
 - Rendering a game with many cells sometimes might be unstable. If you see the rendering has stopped, you may need to pick a different pattern with less cells.
 - Unfortunately this simulator code doesn't work with the ["Run script" action in Power Automate](https://docs.microsoft.com/en-us/office/dev/scripts/tutorials/excel-power-automate-manual), yet.
+
+## References
+
+- [LifeWiki](https://www.conwaylife.com/wiki/Main_Page) - The wiki for Conway's Game of Life.
+- <https://copy.sh/life> - Please do check out this awesome web-based implementation of Conway's Game of Life!
