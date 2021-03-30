@@ -262,7 +262,7 @@ class Pattern implements Grid {
     ]
 
     static async fromUrl(url: string): Promise<Pattern> {
-        let fetchResult = await fetch(`https://sofetch.glitch.me/${encodeURI(url)}`);
+        let fetchResult = await fetch(`https://osts-fetch.glitch.me/${encodeURI(url)}`);
         let patternFileContent = await fetchResult.text();
         let lines = patternFileContent.split("\n");
         let pattern: Pattern = new Pattern();
