@@ -1,14 +1,13 @@
 # Conway's Game of Life in Office Scripts
+On today of last year (April 11th, 2020), [John Horton Conway](https://en.wikipedia.org/wiki/John_Horton_Conway), the legendary mathematician known for inventing the ["Game of Life"](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life), passed away from complications related to COVID-19. As a tribute to this magical genius, we built a Game of Life simulator in [Office Scripts](https://aka.ms/office-scripts) that can demonstrate this classic yet fascinating game on Excel worksheet.
 
 ![banner](images/sample-reaction.gif)
-
-This is a ["Conway's Game of Life"](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) simulator written in [Office Scripts](https://aka.ms/office-scripts) that can demonstrate this classic yet interesting game on Excel worksheet.
 
 ## Background
 
 ### Conway's Game of Life
 
-Please refer to <https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life> for more details about this wonderful game.
+Please read <https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life> for more details about this wonderful game.
 
 > The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway in 1970. It is a zero-player game, meaning that its evolution is determined by its initial state, requiring no further input. One interacts with the Game of Life by creating an initial configuration and observing how it evolves. It is Turing complete and can simulate a universal constructor or any other Turing machine.
 
@@ -22,16 +21,54 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 
 - Firstly start from [here](https://aka.ms/office-scripts) to get familiar with Office Scripts in Excel on the web.
 
-- Add a new script in the Office Scripts code editor and replace its content with [game-of-life.ts](src/game-of-life.ts)
+- Create a new workbook in Excel on the Web.
+
+- Open the **Automate** tab.
+
+- Press the "New script" button.
+
+- Copy the code from [game-of-life.ts](https://raw.githubusercontent.com/yutao-huang/office-scripts-conway-game-of-life/master/src/game-of-life.ts) paste into the Code Editor:
   ![code-editor](images/code-editor.png)
-- Follow the comments in the code to customize what and how you want to render.
-  - The dimension of the game board
-  - The dimension of each cell
-  - The cell color
-  - The maximum generations you want it to run
-  - The initial pattern's rule
+
+- Optionally, rename the script as "Conway's Game of Life".
 - Hit the `▶ Run` button above the code editor.
-- The rendering might take a while so take your time.
+- After a few seconds of churning (downloading the pattern rule and setting up the game board), a small ["glider"](https://www.conwaylife.com/wiki/Glider) comes to life and start to travel across the worksheet.
+
+## Customize the game
+
+Follow the comments in the code to customize what and how you want to render the game. Most of the default settings should just work fine but please feel free to explore different game patterns.
+
+- The dimension of the game board (number of columns/rows):
+
+  ```typescript
+  const BOARD_WIDTH = 110;
+  const BOARD_HEIGHT = 60;
+  ```
+
+- The dimension of each cell (in pixels):
+
+  ```typescript
+  const CELL_WIDTH = 8;
+  const CELL_HEIGHT = 8;
+  ```
+
+- The cell color (refer to [this page](https://docs.microsoft.com/en-us/javascript/api/office-scripts/excelscript/excelscript.rangefill?view=office-scripts#setColor_color_) for the format of the color code):
+
+  ```typescript
+  const CELL_COLOR = "green";
+  ```
+
+- The maximum generations you want it to run:
+
+  ```typescript
+  const MAX_GENERATIONS = 120;
+  ```
+
+- The initial pattern's rule (refer to <https://copy.sh/life/examples> for more sample patterns):
+
+  ```typescript
+  const PATTERN_URL = "https://copy.sh/life/examples/glider.rle";
+  ```
 
 ## Supported rules
 
@@ -45,7 +82,7 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 
 ## Samples
 
-Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Note the frame rates have been adjusted for the screen recordings here for demonstration purpose. The actual evolution rendered in Excel on the web is much slower.
+Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Note the frame rates have been adjusted for the screen recordings here for demonstration purpose. The actual evolution rendered in Excel on the Web is slower.
 
 - Bi-clock, 7x7:
   ![Bi-clock, 7x7](images/sample-bi-clock.gif)
