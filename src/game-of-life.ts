@@ -3,11 +3,11 @@ const BOARD_WIDTH = 110;
 const BOARD_HEIGHT = 60;
 
 // The dimension of each cell.
-const DEFAULT_CELL_WIDTH = 8;
-const DEFAULT_CELL_HEIGHT = 8;
+const CELL_WIDTH = 8;
+const CELL_HEIGHT = 8;
 
 // The cell color
-const DEFAULT_CELL_COLOR = "green";
+const CELL_COLOR = "green";
 
 // Maximum generations to evolve.
 const MAX_GENERATIONS = 120;
@@ -349,9 +349,9 @@ const OFFSET_Y = 1;
 
 class Renderer {
     constructor(private readonly sheet: ExcelScript.Worksheet,
-        private readonly cellWidth: number = DEFAULT_CELL_WIDTH,
-        private readonly cellHeight: number = DEFAULT_CELL_HEIGHT,
-        private readonly cellColor: string = DEFAULT_CELL_COLOR) {
+        private readonly cellWidth: number = CELL_WIDTH,
+        private readonly cellHeight: number = CELL_HEIGHT,
+        private readonly cellColor: string = CELL_COLOR) {
     }
 
     initializeCanvas(game: Game) {
