@@ -1,13 +1,13 @@
 // The board dimension (number of columns/rows).
-const BOARD_WIDTH = 110;
-const BOARD_HEIGHT = 60;
+const BOARD_WIDTH = 60;
+const BOARD_HEIGHT = 40;
 
 // The dimension of each cell.
 const CELL_WIDTH = 8;
 const CELL_HEIGHT = 8;
 
 // The board background color. Set to null for transparent background. Refer to https://html-color.codes/ for the format of the color code.
-const BOARD_COLOR = null;
+const BOARD_COLOR = "white";
 
 // The cell color
 const CELL_COLOR = "green";

@@ -43,8 +43,8 @@ Follow the comments in the code to customize what and how you want to render the
 - The dimension of the game board (number of columns/rows):
 
   ```typescript
-  const BOARD_WIDTH = 110;
-  const BOARD_HEIGHT = 60;
+  const BOARD_WIDTH = 60;
+  const BOARD_HEIGHT = 40;
   ```
 
 - The dimension of each cell (in pixels):
@@ -57,7 +57,7 @@ Follow the comments in the code to customize what and how you want to render the
 - The board background color (refer to [this page](https://docs.microsoft.com/en-us/javascript/api/office-scripts/excelscript/excelscript.rangefill?view=office-scripts#setColor_color_) for the format of the color code):
 
   ```typescript
-  const BOARD_COLOR = "ivory";
+  const BOARD_COLOR = "white";
   ```
 
   Or use `null` for a transparent board:
