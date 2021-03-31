@@ -116,7 +116,7 @@ Here are a few interesting samples based on the rules from <https://copy.sh/life
 - B3578/S238 Replicator, 7x7 (<https://copy.sh/life/examples/b3578s238replicator.rle>):
   ![B3578/S238 Replicator, 7x7](images/sample-b3578s238-replicator.gif)
 
-- Move puffer, 2x6:
+- Move puffer, 2x6 (<https://copy.sh/life/examples/movepuffer.rle>):
   ![Move puffer, 2x6](images/sample-move-puffer.gif)
 
 ## Note
