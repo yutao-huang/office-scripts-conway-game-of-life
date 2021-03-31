@@ -151,7 +151,6 @@ class RuleFactory {
 class ConwayLifeRule implements Rule {
   readonly identifier = "B3/S23";
   readonly name = "Conway's Game of Life";
-
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
     switch (true) {
       case (previouslyAlive && (numberOfNeighbors < 2 || numberOfNeighbors > 3)): return false;
@@ -165,7 +164,6 @@ class ConwayLifeRule implements Rule {
 class MoveRule implements Rule {
   readonly identifier = "245/368";
   readonly name = "Move (or Morley)";
-
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
     switch (true) {
       case (previouslyAlive && [2, 4, 5].includes(numberOfNeighbors)): return true;
@@ -178,7 +176,6 @@ class MoveRule implements Rule {
 class HighLifeRule implements Rule {
   readonly identifier = "23/36";
   readonly name = "HighLife";
-
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
     switch (true) {
       case (previouslyAlive && [2, 3].includes(numberOfNeighbors)): return true;
@@ -201,8 +198,8 @@ class TwoByTwoRule implements Rule {
 }
 
 class MazeRule implements Rule {
-  identifier = "12345/3";
-  name: "Maze";
+  readonly identifier = "12345/3";
+  readonly name = "Maze";
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
     switch (true) {
       case (previouslyAlive && [1, 2, 3, 4, 5].includes(numberOfNeighbors)): return true;
@@ -213,8 +210,8 @@ class MazeRule implements Rule {
 }
 
 class LifeWithoutDeathRule implements Rule {
-  identifier = "b3/s012345678";
-  name = "Life without death";
+  readonly identifier = "b3/s012345678";
+  readonly name = "Life without death";
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
     switch (true) {
       case (previouslyAlive): return true;
@@ -225,8 +222,8 @@ class LifeWithoutDeathRule implements Rule {
 }
 
 class B3578S238Rule implements Rule {
-  identifier = "238/3578";
-  name = "B3578/S238";
+  readonly identifier = "238/3578";
+  readonly name = "B3578/S238";
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
     switch (true) {
       case (previouslyAlive && [2, 3, 8].includes(numberOfNeighbors)): return true;
