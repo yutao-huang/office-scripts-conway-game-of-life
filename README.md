@@ -28,7 +28,7 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 
 - Open the **Automate** tab.
 
-- Press the "New script" button.
+- Press the **New script** button.
 
 - Copy the code from [game-of-life.ts](https://raw.githubusercontent.com/yutao-huang/office-scripts-conway-game-of-life/master/src/game-of-life.ts) and paste into the Code Editor:
 
