@@ -3,6 +3,7 @@
 On today of last year (April 11th, 2020), [John Horton Conway](https://en.wikipedia.org/wiki/John_Horton_Conway), the legendary mathematician known for inventing the ["Game of Life"](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life), passed away from complications related to COVID-19. As a tribute to this magical genius, we built a Game of Life simulator in [Office Scripts](https://aka.ms/office-scripts) that can demonstrate this classic yet fascinating game on Excel worksheet.
 
 ![banner](images/sample-reaction.gif)
+
 *17c/45_Reaction, 16x5 (`https://copy.sh/life/examples/17c45reaction.rle`)*
 
 ## Background
@@ -30,11 +31,13 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 - Press the "New script" button.
 
 - Copy the code from [game-of-life.ts](https://raw.githubusercontent.com/yutao-huang/office-scripts-conway-game-of-life/master/src/game-of-life.ts) and paste into the Code Editor:
+
   ![code-editor](images/code-editor.png)
 
 - Optionally, rename the script as "Conway's Game of Life".
 - Hit the `▶ Run` button above the code editor.
 - After a few seconds of churning (downloading the pattern rule and setting up the game board), a small ["glider"](https://www.conwaylife.com/wiki/Glider) will come to life and start to travel across the worksheet. Please note it will take a bit longer to run for the very first time.
+
   ![sample-glider](images/sample-glider.gif)
 
 ## Customize the game
@@ -100,21 +103,27 @@ Follow the comments in the code to customize what and how you want to render the
 Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Note the frame rates have been adjusted for the screen recordings here for demonstration purpose. The actual evolution rendered in Excel on the Web is slower.
 
 - Bi-clock, 7x7 (`https://copy.sh/life/examples/biclock.rle`):
+
   ![Bi-clock, 7x7](images/sample-bi-clock.gif)
 
 - Maze wickstretcher, 6x8 (`https://copy.sh/life/examples/mazewickstretcher.rle`):
+
   ![Maze wickstretcher, 6x8](images/sample-wick-stretcher.gif)
 
 - 2x2 Block Oscillators, 26x2 (`https://copy.sh/life/examples/2x2blockoscillators.rle`):
+
   ![2x2 Block Oscillators, 26x2](images/sample-2x2-block-oscillators.gif)
 
 - Baker, 16x14 (`https://copy.sh/life/examples/baker.rle`):
+
   ![Baker, 16x14](images/sample-baker.gif)
 
 - Bomber Predecessor, 10x6 (`https://copy.sh/life/examples/bomberpredecessor.rle`):
+
   ![Baker, 16x14](images/sample-bomber-predecessor.gif)
 
 - B3578/S238 Replicator, 7x7 (`https://copy.sh/life/examples/b3578s238replicator.rle`):
+
   ![B3578/S238 Replicator, 7x7](images/sample-b3578s238-replicator.gif)
 
 ## Note
