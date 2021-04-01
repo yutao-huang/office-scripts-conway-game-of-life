@@ -4,7 +4,7 @@ This is a Game of Life simulator in [Office Scripts](https://aka.ms/office-scrip
 
 ![banner](images/sample-reaction.gif)
 
-*17c/45_Reaction, 16x5 (`https://copy.sh/life/examples/17c45reaction.rle`)*
+*17c/45_Reaction, 16x5 (`17c45reaction.rle`)*
 
 ## Background
 
@@ -82,17 +82,17 @@ Follow the comments in the code to customize what and how you want to render the
   const MAX_GENERATIONS = 120;
   ```
 
-- The initial pattern's rule (refer to <https://copy.sh/life/examples> for more sample patterns):
+- The initial pattern's rule (refer to <https://copy.sh/life/examples> for more sample patterns - look for the pattern file name):
 
   ```typescript
-  const PATTERN_URL = "https://copy.sh/life/examples/glider.rle";
+  const PATTERN_FILE_NAME = "glider.rle";
   ```
 
 ## Supported rules
 
 - [Conway's Game of Life (23/3)](https://www.conwaylife.com/wiki/Conway%27s_Game_of_Life) (the most common rule)
 - [HighLife (23/36)](https://www.conwaylife.com/wiki/OCA:HighLife)
-- [Life without death ( 012345678/3)](https://www.conwaylife.com/wiki/OCA:Life_without_death)
+- [Life without death (012345678/3)](https://www.conwaylife.com/wiki/OCA:Life_without_death)
 - [Maze (12345/3)](https://www.conwaylife.com/wiki/OCA:Maze)
 - [2x2 (125/36)](https://www.conwaylife.com/wiki/OCA:2%C3%972)
 - [Move (245/368)](https://www.conwaylife.com/wiki/OCA:Move)
@@ -102,27 +102,27 @@ Follow the comments in the code to customize what and how you want to render the
 
 Here are a few interesting samples based on the rules from <https://copy.sh/life/examples>. Note the frame rates have been adjusted for the screen recordings here for demonstration purpose. The actual evolution rendered in Excel on the Web is slower.
 
-- Bi-clock, 7x7 (`https://copy.sh/life/examples/biclock.rle`):
+- Bi-clock, 7x7 (`biclock.rle`):
 
   ![Bi-clock, 7x7](images/sample-bi-clock.gif)
 
-- Maze wickstretcher, 6x8 (`https://copy.sh/life/examples/mazewickstretcher.rle`):
+- Maze wickstretcher, 6x8 (`mazewickstretcher.rle`):
 
   ![Maze wickstretcher, 6x8](images/sample-wick-stretcher.gif)
 
-- 2x2 Block Oscillators, 26x2 (`https://copy.sh/life/examples/2x2blockoscillators.rle`):
+- 2x2 Block Oscillators, 26x2 (`2x2blockoscillators.rle`):
 
   ![2x2 Block Oscillators, 26x2](images/sample-2x2-block-oscillators.gif)
 
-- Baker, 16x14 (`https://copy.sh/life/examples/baker.rle`):
+- Baker, 16x14 (`baker.rle`):
 
   ![Baker, 16x14](images/sample-baker.gif)
 
-- Bomber Predecessor, 10x6 (`https://copy.sh/life/examples/bomberpredecessor.rle`):
+- Bomber Predecessor, 10x6 (`bomberpredecessor.rle`):
 
   ![Baker, 16x14](images/sample-bomber-predecessor.gif)
 
-- B3578/S238 Replicator, 7x7 (`https://copy.sh/life/examples/b3578s238replicator.rle`):
+- B3578/S238 Replicator, 7x7 (`b3578s238replicator.rle`):
 
   ![B3578/S238 Replicator, 7x7](images/sample-b3578s238-replicator.gif)
 
