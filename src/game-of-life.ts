@@ -138,17 +138,6 @@ interface Rule {
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean;
 }
 
-class RuleFactory {
-  buildRule(identifier: string): Rule {
-    switch (identifier.toUpperCase()) {
-      case "B3/S23":
-        return new ConwayLifeRule;
-      default:
-        break;
-    }
-  }
-}
-
 class ConwayLifeRule implements Rule {
   readonly identifier = "B3/S23";
   readonly name = "Conway's Game of Life";
