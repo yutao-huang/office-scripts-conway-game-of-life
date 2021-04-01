@@ -15,14 +15,19 @@ const CELL_COLOR = "green";
 // Maximum generations to evolve.
 const MAX_GENERATIONS = 120;
 
-// Refer to https://copy.sh/life/examples for more sample patterns.
-const PATTERN_URL = "https://copy.sh/life/examples/glider.rle";
+// Refer to https://copy.sh/life/examples for more sample patterns. Look for the pattern file name.
+const PATTERN_FILE_NAME = "glider.rle";
 
 async function main(workbook: ExcelScript.Workbook): Promise<void> {
-  const pattern = await Pattern.fromUrl(PATTERN_URL);
+  const pattern = await Pattern.loadFromFile(PATTERN_FILE_NAME);
   console.log(`${pattern.info}`);
   if (!pattern.rule || pattern.rule.name === "Unsupported") {
     console.log(`The rule '${pattern.rule.identifier}' used by this pattern is not supported yet. Please pick another one.`);
+    return;
+  }
+
+  if (pattern.height > BOARD_HEIGHT || pattern.width > BOARD_WIDTH) {
+    console.log(`The pattern is too large (${pattern.width} x ${pattern.height}) to fit in the game board (${BOARD_WIDTH} x ${BOARD_HEIGHT}). Please choose a smaller pattern or increase the size of the board.`);
     return;
   }
 
@@ -138,19 +143,22 @@ interface Rule {
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean;
 }
 
-class RuleFactory {
-  buildRule(identifier: string): Rule {
-    switch (identifier.toUpperCase()) {
-      case "B3/S23":
-        return new ConwayLifeRule;
-      default:
-        break;
-    }
-  }
-}
 class ConwayLifeRule implements Rule {
   readonly identifier = "B3/S23";
   readonly name = "Conway's Game of Life";
+  isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
+    switch (true) {
+      case (previouslyAlive && (numberOfNeighbors < 2 || numberOfNeighbors > 3)): return false;
+      case (previouslyAlive && (numberOfNeighbors === 2 || numberOfNeighbors === 3)): return true;
+      case (!previouslyAlive && numberOfNeighbors === 3): return true;
+      default: return false;
+    }
+  }
+}
+
+class B3S23Rule implements Rule {
+  readonly identifier = "23/3";
+  readonly name = "Conway's Game of Life 23/3";
   isCellAlive(previouslyAlive: boolean, numberOfNeighbors: number): boolean {
     switch (true) {
       case (previouslyAlive && (numberOfNeighbors < 2 || numberOfNeighbors > 3)): return false;
@@ -258,11 +266,12 @@ class Pattern implements Grid {
     new TwoByTwoRule,
     new MazeRule,
     new LifeWithoutDeathRule,
-    new B3578S238Rule
+    new B3578S238Rule,
+    new B3S23Rule
   ]
 
-  static async fromUrl(url: string): Promise<Pattern> {
-    let fetchResult = await fetch(`https://osts-fetch.glitch.me/${encodeURI(url)}`);
+  static async loadFromFile(fileName: string): Promise<Pattern> {
+    let fetchResult = await fetch(`https://rule-fetch.glitch.me/${fileName}`);
     let patternFileContent = await fetchResult.text();
     let lines = patternFileContent.split("\n");
     let pattern: Pattern = new Pattern();
@@ -368,7 +377,7 @@ class Renderer {
   }
 
   renderTitle(game: Game, generation: number) {
-    let titleRangeAddress = `${Renderer.columnIndexToA1Address(0)}${1}:${Renderer.columnIndexToA1Address(game.width - 1)}${1}`
+    let titleRangeAddress = `${Renderer.columnIndexToA1Address(0)}${1}:${Renderer.columnIndexToA1Address(game.width - 1)}${1}`;
     let titleRange = this.sheet.getRange(titleRangeAddress);
     titleRange.merge(false);
     titleRange.getFormat().setHorizontalAlignment(ExcelScript.HorizontalAlignment.center);
