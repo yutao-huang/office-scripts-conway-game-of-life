@@ -58,7 +58,7 @@ Follow the comments in the code to customize what and how you want to render the
   const CELL_HEIGHT = 8;
   ```
 
-- The board background color (refer to [this page](https://docs.microsoft.com/en-us/javascript/api/office-scripts/excelscript/excelscript.rangefill?view=office-scripts#setColor_color_) for the format of the color code):
+- The board background color (Refer to <https://html-color.codes/> for the format of the color code):
 
   ```typescript
   const BOARD_COLOR = "white";
@@ -70,7 +70,7 @@ Follow the comments in the code to customize what and how you want to render the
   const BOARD_COLOR = null;
   ```
 
-- The cell color (refer to [this page](https://docs.microsoft.com/en-us/javascript/api/office-scripts/excelscript/excelscript.rangefill?view=office-scripts#setColor_color_) for the format of the color code):
+- The cell color (Refer to <https://html-color.codes/> for the format of the color code):
 
   ```typescript
   const CELL_COLOR = "green";
