@@ -15,7 +15,7 @@ const CELL_COLOR = "green";
 // Maximum generations to evolve.
 const MAX_GENERATIONS = 120;
 
-// Refer to https://copy.sh/life/examples for more sample patterns.
+// Refer to https://copy.sh/life/examples for more sample patterns. Look for the pattern file name.
 const PATTERN_FILE_NAME = "glider.rle";
 
 async function main(workbook: ExcelScript.Workbook): Promise<void> {
@@ -23,6 +23,11 @@ async function main(workbook: ExcelScript.Workbook): Promise<void> {
   console.log(`${pattern.info}`);
   if (!pattern.rule || pattern.rule.name === "Unsupported") {
     console.log(`The rule '${pattern.rule.identifier}' used by this pattern is not supported yet. Please pick another one.`);
+    return;
+  }
+
+  if (pattern.height > BOARD_HEIGHT || pattern.width > BOARD_WIDTH) {
+    console.log(`The pattern is too large (${pattern.width} x ${pattern.height}) to fit in the game board (${BOARD_WIDTH} x ${BOARD_HEIGHT}). Please choose a smaller pattern or increase the size of the board.`);
     return;
   }
 
@@ -266,7 +271,7 @@ class Pattern implements Grid {
   ]
 
   static async loadFromFile(fileName: string): Promise<Pattern> {
-    let fetchResult = await fetch(`https://rulefetcher.azurewebsites.net/${fileName}`);
+    let fetchResult = await fetch(`https://rule-fetch.glitch.me/${fileName}`);
     let patternFileContent = await fetchResult.text();
     let lines = patternFileContent.split("\n");
     let pattern: Pattern = new Pattern();
