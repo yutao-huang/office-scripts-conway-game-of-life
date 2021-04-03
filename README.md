@@ -133,5 +133,6 @@ Here are a few interesting samples based on the rules from <https://copy.sh/life
 
 ## References
 
+- [Office Scripts in Excel on the web](https://docs.microsoft.com/en-us/office/dev/scripts/overview/excel)
 - [LifeWiki](https://www.conwaylife.com/wiki/Main_Page) - The wiki for Conway's Game of Life.
 - <https://copy.sh/life> - Please do check out this awesome web-based implementation of Conway's Game of Life!
