@@ -30,11 +30,10 @@ Please refer to <https://aka.ms/office-scripts> for more details about Office Sc
 
 - Press the **New script** button.
 
-- Copy the code from [game-of-life.ts](https://raw.githubusercontent.com/yutao-huang/office-scripts-conway-game-of-life/master/src/game-of-life.ts) and paste into the Code Editor:
+- Copy the code from [game-of-life.ts](https://raw.githubusercontent.com/yutao-huang/office-scripts-conway-game-of-life/master/src/game-of-life.ts) and paste into the Code Editor. Optionally, rename the script as "Conway's Game of Life".
 
   ![code-editor](images/code-editor.png)
 
-- Optionally, rename the script as "Conway's Game of Life".
 - Hit the `▶ Run` button above the code editor.
 - After a few seconds of churning (downloading the pattern rule and setting up the game board), a small ["glider"](https://www.conwaylife.com/wiki/Glider) will come to life and start to travel across the worksheet. Please note it will take a bit longer to run for the very first time.
 
