@@ -2,7 +2,7 @@
 
 This is a Game of Life simulator in [Office Scripts](https://aka.ms/office-scripts) that can demonstrate this classic yet fascinating game on Excel worksheet.
 
-![banner](images/sample-reaction.gif)
+![banner](images/sample-reaction-slow-down.gif)
 
 *17c/45_Reaction, 16x5 (`17c45reaction.rle`)*
 
