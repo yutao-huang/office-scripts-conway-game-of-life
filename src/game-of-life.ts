@@ -21,46 +21,51 @@ const MAX_GENERATIONS = 120;
 const PATTERN_FILE_NAME = "glider";
 
 async function main(workbook: ExcelScript.Workbook): Promise<void> {
-  const pattern = await Pattern.loadFromFile(PATTERN_FILE_NAME);
-  console.log(`${pattern.info}`);
-  if (!pattern.rule || pattern.rule.name === "Unsupported") {
-    console.log(`The rule '${pattern.rule.identifier}' used by this pattern is not supported yet. Please pick another one.`);
-    return;
-  }
-
-  if (pattern.height > BOARD_HEIGHT || pattern.width > BOARD_WIDTH) {
-    console.log(`The pattern is too large (${pattern.width} x ${pattern.height}) to fit in the game board (${BOARD_WIDTH} x ${BOARD_HEIGHT}). Please choose a smaller pattern or increase the size of the board.`);
-    return;
-  }
-
-  let sheet = workbook.addWorksheet();
-  sheet.activate();
-  const renderer = new Renderer(sheet);
-
-  const game = new Game(BOARD_WIDTH, BOARD_HEIGHT, pattern);
-  renderer.initializeCanvas(game);
-  renderer.renderEvolution(game, game.getInitialEvolution(), 0);
-
-  console.log(`Evolving (maximum generations: ${MAX_GENERATIONS})...`);
-
-  // Rendering might fail if the interval is too small. Normally it'd be fine if >= 500 milliseconds.
-  const RENDER_INTERVAL_MILLISECONDS = 500;
-
-  for (var generation = 1; generation < MAX_GENERATIONS; generation++) {
-    await sleep(RENDER_INTERVAL_MILLISECONDS);
-
-    let evolution = game.evolveOneGeneration();
-    if (!evolution.hasEvolved) {
-      if (game.hasLife) {
-        console.log(`Generation #${generation} has become still life.`);
-      } else {
-        console.log(`Unfortunately Generation #${generation} has become extinct.`);
-      }
-      break;
+  try
+  {
+    const pattern = await Pattern.loadFromFile(PATTERN_FILE_NAME);
+    console.log(`${pattern.info}`);
+    if (!pattern.rule || pattern.rule.name === "Unsupported") {
+      console.log(`The rule '${pattern.rule.identifier}' used by this pattern is not supported yet. Please pick another one.`);
+      return;
     }
-    renderer.renderEvolution(game, evolution, generation);
+
+    if (pattern.height > BOARD_HEIGHT || pattern.width > BOARD_WIDTH) {
+      console.log(`The pattern is too large (${pattern.width} x ${pattern.height}) to fit in the game board (${BOARD_WIDTH} x ${BOARD_HEIGHT}). Please choose a smaller pattern or increase the size of the board.`);
+      return;
+    }
+
+    let sheet = workbook.addWorksheet();
+    sheet.activate();
+    const renderer = new Renderer(sheet);
+
+    const game = new Game(BOARD_WIDTH, BOARD_HEIGHT, pattern);
+    renderer.initializeCanvas(game);
+    renderer.renderEvolution(game, game.getInitialEvolution(), 0);
+
+    console.log(`Evolving (maximum generations: ${MAX_GENERATIONS})...`);
+
+    // Rendering might fail if the interval is too small. Normally it'd be fine if >= 500 milliseconds.
+    const RENDER_INTERVAL_MILLISECONDS = 500;
+
+    for (var generation = 1; generation < MAX_GENERATIONS; generation++) {
+      await sleep(RENDER_INTERVAL_MILLISECONDS);
+
+      let evolution = game.evolveOneGeneration();
+      if (!evolution.hasEvolved) {
+        if (game.hasLife) {
+          console.log(`Generation #${generation} has become still life.`);
+        } else {
+          console.log(`Unfortunately Generation #${generation} has become extinct.`);
+        }
+        break;
+      }
+      renderer.renderEvolution(game, evolution, generation);
+    }
+    console.log("Done.")
+  } catch (error) {
+    console.log(`Failed to run the game. ${error}`);
   }
-  console.log("Done.")
 }
 
 interface Grid {
@@ -274,6 +279,10 @@ class Pattern implements Grid {
 
   static async loadFromFile(fileName: string): Promise<Pattern> {
     let fetchResult = await fetch(`https://game-of-life-rule-fetcher.azurewebsites.net/api/fetchrule?ruleName=${fileName}`);
+    if (!fetchResult || !fetchResult.ok) {
+      throw `Cannot fetch the pattern rule ${fileName}!`;
+    }
+  
     let patternFileContent = await fetchResult.text();
     let lines = patternFileContent.split("\n");
     let pattern: Pattern = new Pattern();
