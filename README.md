@@ -82,7 +82,7 @@ Follow the comments in the code to customize what and how you want to render the
   const MAX_GENERATIONS = 120;
   ```
 
-- The initial pattern's rule (refer to <https://copy.sh/life/examples> for more sample patterns - look for the pattern file name. You don't need to include the file extension `.rle` here.):
+- The initial pattern's rule (refer to <https://copy.sh/life/examples> for more sample patterns - look for the pattern file name without the extension `.rle`):
 
   ```typescript
   const PATTERN_FILE_NAME = "glider";
