@@ -16,7 +16,9 @@ const CELL_COLOR = "green";
 const MAX_GENERATIONS = 120;
 
 // Refer to https://copy.sh/life/examples for more sample patterns. Look for the pattern file name.
-const PATTERN_FILE_NAME = "glider.rle";
+// A few good ones to start with: biclock.rle, mazewickstretcher.rle, 2x2blockoscillators.rle, baker.rle, bomberpredecessor.rle, b3578s238replicator.rle
+// Don't include the file extension ".rle" here.
+const PATTERN_FILE_NAME = "glider";
 
 async function main(workbook: ExcelScript.Workbook): Promise<void> {
   const pattern = await Pattern.loadFromFile(PATTERN_FILE_NAME);
