@@ -271,7 +271,7 @@ class Pattern implements Grid {
   ]
 
   static async loadFromFile(fileName: string): Promise<Pattern> {
-    let fetchResult = await fetch(`https://rule-fetch.glitch.me/${fileName}`);
+    let fetchResult = await fetch(`https://game-of-life-rule-fetcher.azurewebsites.net/api/fetchrule?ruleName=${fileName}`);
     let patternFileContent = await fetchResult.text();
     let lines = patternFileContent.split("\n");
     let pattern: Pattern = new Pattern();
